@@ -329,6 +329,22 @@ export interface Hooks {
     output: { text: string },
   ) => Promise<void>
   /**
+   * Called when the agent loop is about to stop because the model ended its
+   * turn without tool calls.
+   *
+   * - `continue`: If set, sent to the model as a synthetic user message and the
+   *   loop keeps running instead of stopping.
+   * - `note`: If set, shown to the user as text appended to the final
+   *   assistant message. `metadata` is stored on that text part.
+   *
+   * `attempt` counts how many times this run was already continued by the
+   * hook. The loop stops regardless after a fixed number of continuations.
+   */
+  "session.stopping"?: (
+    input: { sessionID: string; parentID?: string; agent: string; messageID: string; attempt: number },
+    output: { continue?: string; note?: string; metadata?: Record<string, unknown> },
+  ) => Promise<void>
+  /**
    * Modify tool definitions (description and parameters) sent to LLM
    */
   "tool.definition"?: (input: { toolID: string }, output: { description: string; parameters: any }) => Promise<void>

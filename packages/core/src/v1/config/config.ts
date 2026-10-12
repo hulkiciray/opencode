@@ -182,6 +182,25 @@ export const Info = Schema.Struct({
       mcp_timeout: Schema.optional(PositiveInt).annotate({
         description: "Timeout in milliseconds for model context protocol (MCP) requests",
       }),
+      verify: Schema.optional(
+        Schema.Union([
+          Schema.Boolean,
+          Schema.Struct({
+            commands: Schema.optional(Schema.mutable(Schema.Array(Schema.String))).annotate({
+              description: "Check commands to run before the agent may finish. Detected from the project when omitted.",
+            }),
+            max_attempts: Schema.optional(PositiveInt).annotate({
+              description: "How many times a failed verification is sent back to the agent before giving up (default: 3)",
+            }),
+            timeout: Schema.optional(PositiveInt).annotate({
+              description: "Timeout in seconds for each check command (default: 300)",
+            }),
+          }),
+        ]),
+      ).annotate({
+        description:
+          "Verify the agent's work before it finishes: run the project's checks, flag weakened tests, and send failures back to the agent",
+      }),
       policies: Schema.optional(Schema.mutable(Schema.Array(ConfigExperimental.Policy))).annotate({
         description: "Policy statements applied to supported resources, such as provider access",
       }),

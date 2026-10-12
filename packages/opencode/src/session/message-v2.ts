@@ -285,7 +285,8 @@ export const toModelMessagesEffect = Effect.fnUntraced(function* (
         return part.metadata?.anthropic?.signature != null
       })
       for (const part of msg.parts) {
-        if (part.type === "text") {
+        // Notes added by session.stopping hooks are for the user; the model gets its feedback as a user turn.
+        if (part.type === "text" && !part.metadata?.stop_hook) {
           const text = part.text === "" && hasSignedReasoning ? " " : part.text
           assistantMessage.parts.push({
             type: "text",

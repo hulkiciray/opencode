@@ -2468,3 +2468,124 @@ noLLMServer.instance(
     }),
   30_000,
 )
+
+function stoppingPlugin(
+  hook: (input: { attempt: number }, output: { continue?: string; note?: string }) => void,
+  seen: { attempt: number }[],
+) {
+  return Layer.mock(Plugin.Service)({
+    trigger: <Name extends string, Input, Output>(name: Name, input: Input, output: Output) => {
+      if (name !== "session.stopping") return Effect.succeed(output)
+      return Effect.sync(() => {
+        seen.push(input as { attempt: number })
+        hook(input as { attempt: number }, output as { continue?: string; note?: string })
+        return output
+      })
+    },
+    list: () => Effect.succeed([]),
+    init: () => Effect.void,
+  })
+}
+
+function withStoppingPlugin(plugin: Layer.Layer<Plugin.Service>) {
+  const root = LayerNode.group([promptRoot, testLLMServerNode])
+  return testEffect(
+    LayerNode.compile(root, [
+      [SessionSummary.node, summary],
+      [LSP.node, lsp],
+      [MCP.node, makeMcp()],
+      [RuntimeFlags.node, runtimeFlags],
+      [Plugin.node, plugin],
+    ]),
+  )
+}
+
+const continueOnceSeen: { attempt: number }[] = []
+const continueOnce = withStoppingPlugin(
+  stoppingPlugin((input, output) => {
+    if (input.attempt === 0) {
+      output.continue = "Checks failed: run the tests again."
+      output.note = "Verification failed. Sent back to the agent."
+      return
+    }
+    output.note = "Verified."
+  }, continueOnceSeen),
+)
+
+continueOnce.instance("session.stopping hook can send the agent back to work", () =>
+  Effect.gen(function* () {
+    const { llm } = yield* useServerConfig(providerCfg)
+    const prompt = yield* SessionPrompt.Service
+    const sessions = yield* Session.Service
+    const chat = yield* sessions.create({
+      title: "Pinned",
+      permission: [{ permission: "*", pattern: "*", action: "allow" }],
+    })
+    yield* prompt.prompt({ sessionID: chat.id, agent: "build", noReply: true, parts: [{ type: "text", text: "fix it" }] })
+    yield* llm.text("done")
+    yield* llm.text("fixed for real")
+
+    const result = yield* prompt.loop({ sessionID: chat.id })
+    expect(yield* llm.calls).toBe(2)
+    expect(continueOnceSeen.map((s) => s.attempt)).toEqual([0, 1])
+    expect(result.parts.some((p) => p.type === "text" && p.text === "fixed for real")).toBe(true)
+    expect(result.parts.some((p) => p.type === "text" && p.text === "Verified.")).toBe(true)
+    expect(JSON.stringify((yield* llm.hits)[1]?.body)).toContain("Checks failed: run the tests again.")
+
+    const messages = yield* sessions.messages({ sessionID: chat.id })
+    const first = messages.find((m) => m.info.role === "assistant")
+    expect(first?.parts.some((p) => p.type === "text" && p.text.startsWith("Verification failed"))).toBe(true)
+    const injected = messages.filter((m) => m.info.role === "user").at(-1)
+    expect(injected?.parts.some((p) => p.type === "text" && p.synthetic === true)).toBe(true)
+  }),
+)
+
+const alwaysContinue = withStoppingPlugin(
+  stoppingPlugin((_input, output) => {
+    output.continue = "not done"
+  }, []),
+)
+
+alwaysContinue.instance("session.stopping continuations are capped", () =>
+  Effect.gen(function* () {
+    const { llm } = yield* useServerConfig(providerCfg)
+    const prompt = yield* SessionPrompt.Service
+    const sessions = yield* Session.Service
+    const chat = yield* sessions.create({
+      title: "Pinned",
+      permission: [{ permission: "*", pattern: "*", action: "allow" }],
+    })
+    yield* prompt.prompt({ sessionID: chat.id, agent: "build", noReply: true, parts: [{ type: "text", text: "go" }] })
+    for (const i of Array.from({ length: 12 }, (_, i) => i)) yield* llm.text(`reply ${i}`)
+
+    yield* prompt.loop({ sessionID: chat.id })
+    expect(yield* llm.calls).toBe(11)
+  }),
+)
+
+const throwingPlugin = withStoppingPlugin(
+  Layer.mock(Plugin.Service)({
+    trigger: <Name extends string, Input, Output>(name: Name, _input: Input, output: Output) =>
+      name === "session.stopping" ? Effect.die(new Error("plugin bug")) : Effect.succeed(output),
+    list: () => Effect.succeed([]),
+    init: () => Effect.void,
+  }),
+)
+
+throwingPlugin.instance("a failing session.stopping hook does not break the loop", () =>
+  Effect.gen(function* () {
+    const { llm } = yield* useServerConfig(providerCfg)
+    const prompt = yield* SessionPrompt.Service
+    const sessions = yield* Session.Service
+    const chat = yield* sessions.create({
+      title: "Pinned",
+      permission: [{ permission: "*", pattern: "*", action: "allow" }],
+    })
+    yield* prompt.prompt({ sessionID: chat.id, agent: "build", noReply: true, parts: [{ type: "text", text: "go" }] })
+    yield* llm.text("done")
+
+    const result = yield* prompt.loop({ sessionID: chat.id })
+    expect(yield* llm.calls).toBe(1)
+    expect(result.parts.some((p) => p.type === "text" && p.text === "done")).toBe(true)
+  }),
+)

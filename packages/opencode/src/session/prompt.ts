@@ -63,6 +63,8 @@ globalThis.AI_SDK_LOG_WARNINGS = false
 const decodeMessageInfo = Schema.decodeUnknownExit(SessionV1.Info)
 const decodeMessagePart = Schema.decodeUnknownExit(SessionV1.Part)
 const MAX_MCP_RESOURCE_BLOB_BYTES = 10 * 1024 * 1024
+// Hard cap on session.stopping continuations per run, so a misbehaving plugin cannot loop forever.
+const MAX_STOP_CONTINUES = 10
 const SUPPORTED_MCP_RESOURCE_ATTACHMENT_MIMES = new Set([
   "application/pdf",
   "image/gif",
@@ -1083,6 +1085,7 @@ const layer = Layer.effect(
         const ctx = yield* InstanceState.context
         let structured: unknown
         let step = 0
+        let stopContinues = 0
         const session = yield* sessions.get(sessionID).pipe(Effect.orDie)
 
         while (true) {
@@ -1124,6 +1127,59 @@ const layer = Layer.effect(
                 tool: orphan.tool,
                 callID: orphan.callID,
               })
+            }
+            // Only ask plugins when this run produced the turn that is ending, and never after an
+            // aborted or failed turn. A plugin may send the model back to work a bounded number of times.
+            if (step > 0 && !lastAssistant.error) {
+              const exit = yield* plugin
+                .trigger(
+                  "session.stopping",
+                  {
+                    sessionID,
+                    parentID: session.parentID,
+                    agent: lastUser.agent,
+                    messageID: lastAssistant.id,
+                    attempt: stopContinues,
+                  },
+                  {} as { continue?: string; note?: string; metadata?: Record<string, unknown> },
+                )
+                .pipe(Effect.exit)
+              if (Exit.isFailure(exit))
+                yield* Effect.logWarning("session.stopping hook failed", { "session.id": sessionID, cause: exit.cause })
+              const stopping = Exit.isSuccess(exit) ? exit.value : {}
+              if (stopping.note)
+                yield* sessions.updatePart({
+                  id: PartID.ascending(),
+                  messageID: lastAssistant.id,
+                  sessionID,
+                  type: "text",
+                  text: stopping.note,
+                  metadata: { ...stopping.metadata, stop_hook: true },
+                  time: { start: Date.now(), end: Date.now() },
+                })
+              if (stopping.continue && stopContinues < MAX_STOP_CONTINUES) {
+                stopContinues++
+                const continueMsg = yield* sessions.updateMessage({
+                  id: MessageID.ascending(),
+                  role: "user",
+                  sessionID,
+                  time: { created: Date.now() },
+                  agent: lastUser.agent,
+                  model: lastUser.model,
+                })
+                yield* sessions.updatePart({
+                  id: PartID.ascending(),
+                  messageID: continueMsg.id,
+                  sessionID,
+                  type: "text",
+                  text: stopping.continue,
+                  synthetic: true,
+                  metadata: { stop_hook: true },
+                  time: { start: Date.now(), end: Date.now() },
+                })
+                yield* Effect.logInfo("stop hook continued loop", { "session.id": sessionID, attempt: stopContinues })
+                continue
+              }
             }
             yield* Effect.logInfo("exiting loop", { "session.id": sessionID })
             break
