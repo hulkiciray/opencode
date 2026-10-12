@@ -1,3 +1,5 @@
+> **verify-gate branch:** this fork adds a verify-before-finish check for the agent (a `session.stopping` plugin hook and a built-in verifier). See [VERIFY.md](VERIFY.md) for what it does, how to test it (`./verify-bench/check.sh`), and benchmark results. (VERIFY.md was written by Claude Code.)
+
 <p align="center">
   <a href="https://opencode.ai">
     <picture>
