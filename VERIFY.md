@@ -1,7 +1,5 @@
 # verify-gate: check the agent's work before it says "done"
 
-> This document was written by Claude Code (an AI assistant) from the work on this branch. The code was co-authored with Claude Code (see the commit trailers).
-
 This branch of OpenCode adds two things:
 
 1. **A `session.stopping` plugin hook.** It fires right before the agent loop would end a turn. A plugin can send the agent back to work with a message, or attach a note for the user.
