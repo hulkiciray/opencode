@@ -78,6 +78,15 @@ test("flags skipped tests, removed assertions, suppressions and deleted test fil
   expect(findings.some((f) => f.includes("test_c.py"))).toBe(false)
 })
 
+test("test script changes are flagged, unrelated package.json edits are not", async () => {
+  const dir = await repo({ "package.json": '{\n  "scripts": { "test": "bun test" }\n}\n' })
+  const base = await git(dir, "rev-parse", "HEAD")
+  await write(dir, { "package.json": '{\n  "scripts": { "test": "bun test" },\n  "dependencies": { "x": "1" }\n}\n' })
+  expect(await findWeakening(dir, base)).toEqual([])
+  await write(dir, { "package.json": '{\n  "scripts": { "test": "true" }\n}\n' })
+  expect(await findWeakening(dir, base)).toEqual(["package.json: test script changed"])
+})
+
 test("adding tests is not flagged", async () => {
   const dir = await repo({ "test/a.test.ts": 'test("a", () => {\n  expect(1).toBe(1)\n})\n' })
   const base = await git(dir, "rev-parse", "HEAD")

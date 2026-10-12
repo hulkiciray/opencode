@@ -128,8 +128,26 @@ export async function findWeakening(dir: string, base: string) {
       if (lost > 0) findings.push(`${file}: ${lost} assertion${lost === 1 ? "" : "s"} removed`)
     }
     if (added.some((l) => SUPPRESSION.test(l))) findings.push(`${file}: type/lint suppression added`)
-    if (path.basename(file) === "package.json" && removed.some((l) => /"test"\s*:/.test(l)))
-      findings.push(`${file}: test script changed`)
+    if (path.basename(file) === "package.json") {
+      // Compare the script itself: unrelated edits often rewrite the line that holds it.
+      const script = (text: string | undefined) => {
+        const parsed = (() => {
+          try {
+            return JSON.parse(text ?? "")
+          } catch {
+            return undefined
+          }
+        })()
+        return parsed?.scripts?.test
+      }
+      const before = script(await git(dir, "show", `${base}:${file}`))
+      const after = script(
+        await Bun.file(path.join(dir, file))
+          .text()
+          .catch(() => undefined),
+      )
+      if (before !== undefined && before !== after) findings.push(`${file}: test script changed`)
+    }
   }
   return findings
 }
