@@ -1,0 +1,55 @@
+{
+  "task": "ts-emitter",
+  "arm": "on",
+  "rep": 2,
+  "model": "openai/gpt-4.1-mini",
+  "exit_code": 0,
+  "duration_s": 42.3,
+  "completed": true,
+  "tool_calls": 9,
+  "ran_tests": true,
+  "shell_cmds": [
+    "bun test test/emitter.test.ts",
+    "bun test test/emitter.test.ts"
+  ],
+  "final_text": "All tests passed successfully!\n\nSummary:\n- Added `once(event, fn)` listener functionality with unsubscribe function.\n- Fixed bug in `emit` to avoid skips when listeners unsubscribe during emit.\n- Enhanced `off` to support removing wrapped once listeners correctly.\n- Added comprehensive tests for new functionality and bug fix.\n\nThe Emitter behavior is now robust and meets the requirements.\n\nIf you want, I can help with anything else or provide you with the final updated source and test files.",
+  "claims_success": true,
+  "tokens": {
+    "input": 22414,
+    "output": 3625,
+    "reasoning": 0
+  },
+  "cost": 0.022253600000000002,
+  "errors": [],
+  "verify_events": [
+    {
+      "status": "passed",
+      "attempt": 0,
+      "checks": [
+        {
+          "command": "bun run test",
+          "ok": true,
+          "code": 0,
+          "duration": 12
+        }
+      ],
+      "weakening": []
+    }
+  ],
+  "tests_modified": [
+    "test/emitter.test.ts"
+  ],
+  "visible_as_left": {
+    "pass": true,
+    "summary": "9 pass, 0 fail"
+  },
+  "visible_original": {
+    "pass": true,
+    "summary": "6 pass, 0 fail"
+  },
+  "full": {
+    "pass": true,
+    "summary": "14 pass, 0 fail"
+  },
+  "diff_stat": " src/emitter.ts       | 23 ++++++++++++++--\n test/emitter.test.ts | 74 ++++++++++++++++++++++++++++++++++++++++++++++++++++\n 2 files changed, 95 insertions(+), 2 deletions(-)\n"
+}

@@ -1,0 +1,52 @@
+{
+  "task": "ts-lru-ttl",
+  "arm": "on",
+  "rep": 1,
+  "model": "openai/gpt-5-nano",
+  "exit_code": 0,
+  "duration_s": 69.4,
+  "completed": true,
+  "tool_calls": 8,
+  "ran_tests": false,
+  "shell_cmds": [],
+  "final_text": "number })\n  - TTL helpers:\n    - private pruneExpired(): void\n  - Key methods with TTL semantics:\n    - get(key: K): V | undefined\n    - set(key: K, value: V, ttlMs?: number): void\n    - has(key: K): boolean\n    - delete(key: K): boolean\n    - get size(): number\n    - keys(): K[]\n\nWhat this enables\n\n- new LRUCache(cap, { ttl: 1000 }) creates a cache where entries expire after 1 second by default.\n- set(key, value, ttlMs?) can override per-entry TTL (e.g., c.set(\"foo\", 42, 5000) expires in 5 seconds from now).\n- No TTL means the entry never expires if ttl is not configured or if the per-entry TTL is undefined.\n- Expired entries are treated as if they were never added:\n  - get returns undefined\n  - has returns false\n  - size is reduced; keys() excludes expired entries\n- When the cache is full, expired entries are dropped before eviction of live ones.\n\nHow to run tests\n\n- If your environment uses bun (as per existing tests):\n  - bun test\n- Or run your usual TypeScript test command if configured differently.\n\nNotes on minimal changes\n\n- The patch focuses on adding TTL functionality with a minimal surface area change:\n  - No change to public API shapes beyond optional configuration and per-entry TTL.\n  - Retains existing behavior for non-TTL usage.\n  - Adds deterministic testing via the now() override.\n\nIf you want, I can add more tests to explicitly cover eviction ordering when both expired and live entries exist, or adjust tests to reflect any specific edge cases you care about.",
+  "claims_success": false,
+  "tokens": {
+    "input": 16252,
+    "output": 3208,
+    "reasoning": 5440
+  },
+  "cost": 0.004467,
+  "errors": [],
+  "verify_events": [
+    {
+      "status": "passed",
+      "attempt": 0,
+      "checks": [
+        {
+          "command": "bun run test",
+          "ok": true,
+          "code": 0,
+          "duration": 12
+        }
+      ],
+      "weakening": []
+    }
+  ],
+  "tests_modified": [
+    "test/lru.test.ts"
+  ],
+  "visible_as_left": {
+    "pass": true,
+    "summary": "9 pass, 0 fail"
+  },
+  "visible_original": {
+    "pass": true,
+    "summary": "7 pass, 0 fail"
+  },
+  "full": {
+    "pass": true,
+    "summary": "13 pass, 0 fail"
+  },
+  "diff_stat": " src/lru.ts       | 81 +++++++++++++++++++++++++++++++++++++++++++++-----------\n test/lru.test.ts | 33 +++++++++++++++++++++++\n 2 files changed, 99 insertions(+), 15 deletions(-)\n"
+}

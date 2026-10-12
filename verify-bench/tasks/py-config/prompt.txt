@@ -1,0 +1,5 @@
+Add environment variable interpolation to the config parser in config.py:
+- `${VAR}` is replaced by the value of VAR; if VAR is not set, raise ConfigError naming the variable and the line number.
+- `${VAR:-default}` uses the default when VAR is unset or empty.
+- `$${` is an escape that produces a literal `${`.
+Interpolation applies to values only (including quoted values), never to keys or comments. parse() should take an optional `env` mapping (default: os.environ) so it can be tested.

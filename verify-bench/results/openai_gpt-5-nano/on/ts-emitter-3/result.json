@@ -1,0 +1,52 @@
+{
+  "task": "ts-emitter",
+  "arm": "on",
+  "rep": 3,
+  "model": "openai/gpt-5-nano",
+  "exit_code": 0,
+  "duration_s": 75.9,
+  "completed": true,
+  "tool_calls": 6,
+  "ran_tests": false,
+  "shell_cmds": [],
+  "final_text": ").\n\n2) Emit semantics fix\n- emit now takes a snapshot of the current listeners: const toCall = list.slice().\n- For each function in the snapshot, it checks whether the function is still registered now: if (!this.listeners.get(event)?.includes(fn)) continue\n- This ensures:\n  - Listeners removed before their turn are skipped.\n  - Listeners added during the emit are not called in the same emit (since they\u2019re not in the snapshot).\n  - If a listener unsubscribes itself or another listener mid-emit, the next listener is only invoked if it remains registered.\n\nUsage notes\n\n- Once usage:\n  - const off = emitter.once(\"eventName\", (payload) => { /* handle once */ })\n  - off() will unsubscribe the original function before it fires if called early.\n  - If you call off(\"eventName\", originalFn) before the event fires, the wrapper will be removed and will not execute.\n\n- Backwards compatibility:\n  - on, off, and emit behavior remains compatible with existing code. once is additive.\n\nWhat you\u2019ll see in tests\n- New tests validate:\n  - once only fires once\n  - once can be unsubscribed before it fires\n  - off with the original function can cancel a pending once listener\n  - Emit semantics preserve the behavior of listeners registered at the start and skip those removed before their turn\n\nIf you want, I can run through adding more targeted tests (e.g., multiple duplicates of the same function with and without once) or adjust the behavior to align with a specific edge-case you\u2019re concerned about.",
+  "claims_success": false,
+  "tokens": {
+    "input": 10192,
+    "output": 2900,
+    "reasoning": 7680
+  },
+  "cost": 0.0049841600000000005,
+  "errors": [],
+  "verify_events": [
+    {
+      "status": "passed",
+      "attempt": 0,
+      "checks": [
+        {
+          "command": "bun run test",
+          "ok": true,
+          "code": 0,
+          "duration": 14
+        }
+      ],
+      "weakening": []
+    }
+  ],
+  "tests_modified": [
+    "test/emitter.test.ts"
+  ],
+  "visible_as_left": {
+    "pass": true,
+    "summary": "10 pass, 0 fail"
+  },
+  "visible_original": {
+    "pass": true,
+    "summary": "6 pass, 0 fail"
+  },
+  "full": {
+    "pass": true,
+    "summary": "14 pass, 0 fail"
+  },
+  "diff_stat": " src/emitter.ts       | 44 +++++++++++++++++++++++++++++++++++++++++++-\n test/emitter.test.ts | 39 +++++++++++++++++++++++++++++++++++++++\n 2 files changed, 82 insertions(+), 1 deletion(-)\n"
+}

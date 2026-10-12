@@ -1,0 +1,1 @@
+parseCSV is too naive for the files we're getting from the finance team. It needs to handle RFC 4180-style quoting: a field wrapped in double quotes can contain commas, newlines and escaped quotes (a doubled "" means a literal "). Also accept CRLF line endings. Don't change any of the existing behavior otherwise.

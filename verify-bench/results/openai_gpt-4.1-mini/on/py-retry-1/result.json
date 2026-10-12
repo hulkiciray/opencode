@@ -1,0 +1,55 @@
+{
+  "task": "py-retry",
+  "arm": "on",
+  "rep": 1,
+  "model": "openai/gpt-4.1-mini",
+  "exit_code": 0,
+  "duration_s": 40.7,
+  "completed": true,
+  "tool_calls": 13,
+  "ran_tests": true,
+  "shell_cmds": [
+    "python3 -m unittest tests/test_retry.py",
+    "python3 -m unittest tests/test_retry.py"
+  ],
+  "final_text": "All tests have passed successfully.\n\nSummary:\n- Added exponential backoff with jitter support to retry decorator as requested.\n- Added validation for parameters.\n- Added on_retry callback.\n- Updated tests to cover the new functionality.\n- Fixed and verified all tests pass.\n\nThe task is now complete and the retry decorator is robustly enhanced with exponential backoff and jitter features. Let me know if you need any further assistance.",
+  "claims_success": true,
+  "tokens": {
+    "input": 5738,
+    "output": 3049,
+    "reasoning": 0
+  },
+  "cost": 0.018975199999999998,
+  "errors": [],
+  "verify_events": [
+    {
+      "status": "passed",
+      "attempt": 0,
+      "checks": [
+        {
+          "command": "python3 -m unittest",
+          "ok": true,
+          "code": 0,
+          "duration": 2039
+        }
+      ],
+      "weakening": []
+    }
+  ],
+  "tests_modified": [
+    "tests/test_retry.py"
+  ],
+  "visible_as_left": {
+    "pass": true,
+    "summary": "ran 11, ok"
+  },
+  "visible_original": {
+    "pass": true,
+    "summary": "ran 7, ok"
+  },
+  "full": {
+    "pass": true,
+    "summary": "ran 15, ok"
+  },
+  "diff_stat": " retry.py            | 25 +++++++++++++++++++++----\n tests/test_retry.py | 43 +++++++++++++++++++++++++++++++++++++++++++\n 2 files changed, 64 insertions(+), 4 deletions(-)\n"
+}

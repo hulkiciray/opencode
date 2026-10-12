@@ -1,0 +1,36 @@
+{
+  "task": "ts-lru-ttl",
+  "arm": "off",
+  "rep": 3,
+  "model": "openai/gpt-5-nano",
+  "exit_code": 0,
+  "duration_s": 75.1,
+  "completed": true,
+  "tool_calls": 9,
+  "ran_tests": false,
+  "shell_cmds": [],
+  "final_text": "e if entry exists and not expired; does not refresh recency\n  - size getter and keys() pruneExpired() first\n\n2) TTL tests\n- Added new test file: test/lru_ttl.test.ts\n- Tests cover:\n  - TTL expiration excludes entries from size/keys/get/has\n  - Per-entry TTL override (ttlMs) works alongside global TTL\n  - Expired entries are dropped before eviction (capacity-limited scenario)\n\nUsage examples\n\n- Default: no TTL\n  - const c = new LRUCache<string, number>(2)\n  - c.set(\"a\", 1)\n  - c.set(\"b\", 2)\n\n- Global TTL (entries expire after ttl ms)\n  - const c = new LRUCache<string, number>(2, { ttl: 1000 })\n  - c.set(\"a\", 1) // expires in 1000 ms\n  - c.get(\"a\") // returns 1 if not expired, otherwise undefined\n\n- Per-entry TTL override\n  - c.set(\"x\", \"value\", 100) // expires in 100 ms\n  - c.set(\"y\", \"value\") // uses global TTL if set, otherwise never expires\n\n- Testable time source\n  - const c = new LRUCache<string, number>(2, { ttl: 1000, now: () => myFakeTime })\n  - myFakeTime can be advanced deterministically in tests\n\nWhat to run\n\n- Run tests with Bun (as used in this repo)\n  - bun test\n\nFiles touched\n\n- Updated:\n  - src/lru.ts\n- Added:\n  - test/lru_ttl.test.ts\n- Removed:\n  - test/lru ttl.test.ts (renamed to avoid spaces)\n\nIf you want me to adjust tests to align with any specific existing test conventions or to cover additional edge cases (e.g., TTL behavior with rapid insertions/deletions, explicit removal of expired items, or interaction with undefined values), I can add those as well.",
+  "claims_success": false,
+  "tokens": {
+    "input": 19518,
+    "output": 3740,
+    "reasoning": 4288
+  },
+  "cost": 0.00456406,
+  "errors": [],
+  "verify_events": [],
+  "tests_modified": [],
+  "visible_as_left": {
+    "pass": true,
+    "summary": "10 pass, 0 fail"
+  },
+  "visible_original": {
+    "pass": true,
+    "summary": "10 pass, 0 fail"
+  },
+  "full": {
+    "pass": true,
+    "summary": "16 pass, 0 fail"
+  },
+  "diff_stat": " src/lru.ts | 66 ++++++++++++++++++++++++++++++++++++++++++++++++++++----------\n 1 file changed, 56 insertions(+), 10 deletions(-)\n"
+}

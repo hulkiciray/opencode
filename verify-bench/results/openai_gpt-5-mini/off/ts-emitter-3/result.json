@@ -1,0 +1,41 @@
+{
+  "task": "ts-emitter",
+  "arm": "off",
+  "rep": 3,
+  "model": "openai/gpt-5-mini",
+  "exit_code": 0,
+  "duration_s": 46.4,
+  "completed": true,
+  "tool_calls": 7,
+  "ran_tests": true,
+  "shell_cmds": [
+    "ls -la",
+    "bun test"
+  ],
+  "final_text": "I implemented both requested changes and added tests.\n\nSummary of changes\n- src/emitter.ts\n  - Added Emitter.once(event, fn): registers a listener that runs at most once and returns an unsubscribe function specific to that once-listener.\n  - Fixed emit so it snapshots listeners at start and calls every listener that was present at start unless it was removed before its turn. Listeners added during an emit are not called until the next emit.\n  - off(event, fn) now removes either the exact function or a once-wrapper created for the original function (so off(event, originalFn) removes pending once listeners).\n  - Internal WeakMap wrapperToOriginal used to map once-wrappers to their original function.\n\n- test/emitter.test.ts\n  - Added tests for once behavior, off removing once listeners, and tests that verify listeners removed during an emit do not cause subsequent listeners to be skipped (including self-unsubscribe).\n\nAll tests pass locally: 10 passing tests.\n\nIf you want, I can:\n1. Make off remove all occurrences (currently it removes only the first matching occurrence, matching prior semantics).\n2. Add TypeScript types or JSDoc improvements.\n3. Add more tests or edge-case coverage (e.g., multiple once registrations of same function).",
+  "claims_success": true,
+  "tokens": {
+    "input": 16244,
+    "output": 2266,
+    "reasoning": 2688
+  },
+  "cost": 0.0153994,
+  "errors": [],
+  "verify_events": [],
+  "tests_modified": [
+    "test/emitter.test.ts"
+  ],
+  "visible_as_left": {
+    "pass": true,
+    "summary": "10 pass, 0 fail"
+  },
+  "visible_original": {
+    "pass": true,
+    "summary": "6 pass, 0 fail"
+  },
+  "full": {
+    "pass": true,
+    "summary": "14 pass, 0 fail"
+  },
+  "diff_stat": " src/emitter.ts       | 39 ++++++++++++++++++++++++++++++++---\n test/emitter.test.ts | 57 ++++++++++++++++++++++++++++++++++++++++++++++++++++\n 2 files changed, 93 insertions(+), 3 deletions(-)\n"
+}

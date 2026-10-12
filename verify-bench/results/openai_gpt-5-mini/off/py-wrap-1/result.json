@@ -1,0 +1,38 @@
+{
+  "task": "py-wrap",
+  "arm": "off",
+  "rep": 1,
+  "model": "openai/gpt-5-mini",
+  "exit_code": 0,
+  "duration_s": 21.6,
+  "completed": true,
+  "tool_calls": 4,
+  "ran_tests": false,
+  "shell_cmds": [
+    "python - << 'PY'\nfrom wrap import wrap\ncases = [\n    (\"This is a test of the wrap function. It should wrap words properly.\", 20),\n    (\"Paragraph one.\\n\\nParagraph two line1\\nline2\\n\\n\\nParagraph three.\", 30),\n    (\"A url: https://example.com/this/is/a/very/long/url/that/exceeds/width and other text\", 20),\n    (\"http://short.url and then more words\", 10),\n]\nfor text,w in cases:\n    print('---', w)\n    for line in wrap(text,w):\n        print(repr(line))\nPY"
+  ],
+  "final_text": "Done. I updated wrap.py to:\n\n- Preserve paragraph breaks: paragraphs are detected as blocks of non-blank lines (blank = line with only whitespace). Output paragraphs are separated by a single \"\" element, with no leading/trailing separators and multiple blank lines collapsed to one separator.\n- Never split URLs (words starting with \"http://\" or \"https://\"). If a URL is longer than width it is placed alone on its line instead of being chunked. Shorter URLs are treated as normal words.\n\nI ran a quick smoke test demonstrating the new behavior. If you'd like, I can add unit tests covering these cases.",
+  "claims_success": false,
+  "tokens": {
+    "input": 15190,
+    "output": 1529,
+    "reasoning": 576
+  },
+  "cost": 0.008513100000000001,
+  "errors": [],
+  "verify_events": [],
+  "tests_modified": [],
+  "visible_as_left": {
+    "pass": true,
+    "summary": "ran 6, ok"
+  },
+  "visible_original": {
+    "pass": true,
+    "summary": "ran 6, ok"
+  },
+  "full": {
+    "pass": true,
+    "summary": "ran 14, ok"
+  },
+  "diff_stat": " wrap.py | 90 ++++++++++++++++++++++++++++++++++++++++++++++++++---------------\n 1 file changed, 69 insertions(+), 21 deletions(-)\n"
+}

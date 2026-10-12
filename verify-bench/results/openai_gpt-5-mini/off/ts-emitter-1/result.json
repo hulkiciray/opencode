@@ -1,0 +1,41 @@
+{
+  "task": "ts-emitter",
+  "arm": "off",
+  "rep": 1,
+  "model": "openai/gpt-5-mini",
+  "exit_code": 0,
+  "duration_s": 45.3,
+  "completed": true,
+  "tool_calls": 8,
+  "ran_tests": true,
+  "shell_cmds": [
+    "bun test",
+    "bun test"
+  ],
+  "final_text": "ent, fn) to remove a once-listener before it fires.\n    - Unsubscribe (returned from on/once) removes that specific registration.\n  - once(event, fn): registers a wrapped function that removes its entry after running, and returns an unsubscribe.\n  - emit(event, ...): takes a snapshot of listeners present when emit starts, and before calling each snapshot entry checks whether that entry is still registered. This guarantees:\n    - Every listener registered when emit started will be called unless it was removed before its turn.\n    - Listeners added during an emit won't run until the next emit.\n  - off(event, fn): removes the first registration whose original function === fn (preserves previous semantics for removing one occurrence).\n  - Errors thrown by listeners are aggregated and rethrown as before.\n\n- test/emitter.test.ts\n  - Added tests for:\n    - once listener running once and being removable using off(event, fn) before it fires.\n    - Proper behavior when listeners remove others during an emit (no skipping), and listeners added during an emit only run on subsequent emits.\n\nVerification\n- Ran the test suite: all tests pass (8 passed, 0 failed).\n\nIf you want:\n1. Keep the unsubscribe returned from on/once implemented to remove the specific registration (current behavior). I can change it to call off(event, fn) instead if you prefer the original semantics exactly.\n2. Add TypeScript types/export refinements or more tests (e.g., for duplicate function registrations edge cases).",
+  "claims_success": true,
+  "tokens": {
+    "input": 17815,
+    "output": 2765,
+    "reasoning": 2368
+  },
+  "cost": 0.016396549999999996,
+  "errors": [],
+  "verify_events": [],
+  "tests_modified": [
+    "test/emitter.test.ts"
+  ],
+  "visible_as_left": {
+    "pass": true,
+    "summary": "8 pass, 0 fail"
+  },
+  "visible_original": {
+    "pass": true,
+    "summary": "6 pass, 0 fail"
+  },
+  "full": {
+    "pass": true,
+    "summary": "14 pass, 0 fail"
+  },
+  "diff_stat": " src/emitter.ts       | 63 +++++++++++++++++++++++++++++++++++++++++++++-------\n test/emitter.test.ts | 43 +++++++++++++++++++++++++++++++++++\n 2 files changed, 98 insertions(+), 8 deletions(-)\n"
+}

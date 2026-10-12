@@ -1,0 +1,3 @@
+Two things in Emitter:
+1. Add `once(event, fn)`: the listener runs at most once, and it returns an unsubscribe function like `on` does. `off(event, fn)` with the original function must also remove a once-listener that hasn't fired yet.
+2. There's a bug: if a listener unsubscribes itself (or another listener) while an emit is running, the next listener gets skipped. Fix it so that every listener registered when emit starts gets called, unless it was removed before its turn. Listeners added during an emit should only run from the next emit on.

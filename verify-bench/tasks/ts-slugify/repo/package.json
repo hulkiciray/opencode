@@ -1,0 +1,5 @@
+{
+  "name": "slugify",
+  "type": "module",
+  "scripts": { "test": "bun test" }
+}

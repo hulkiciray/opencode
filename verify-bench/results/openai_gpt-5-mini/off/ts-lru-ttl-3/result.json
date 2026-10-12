@@ -1,0 +1,42 @@
+{
+  "task": "ts-lru-ttl",
+  "arm": "off",
+  "rep": 3,
+  "model": "openai/gpt-5-mini",
+  "exit_code": 0,
+  "duration_s": 33.9,
+  "completed": true,
+  "tool_calls": 9,
+  "ran_tests": true,
+  "shell_cmds": [
+    "",
+    "bun test --reporter=minimal",
+    "bun test --reporter=dots"
+  ],
+  "final_text": "I implemented TTL support and added tests.\n\nSummary of changes\n- src/lru.ts\n  - Added optional constructor options: { ttl?: number, now?: () => number }.\n  - Entries store value + expiration timestamp. Per-entry TTL via set(key, value, ttlMs?).\n  - now() is used (defaults to Date.now) so tests can control time.\n  - Expired entries are removed lazily on access, size, and keys.\n  - When inserting and full, the cache first removes expired entries before evicting the oldest live entry.\n  - get refreshes recency; has does not.\n- test/lru.test.ts\n  - Added tests for TTL behavior: expiration, per-entry TTL override and eviction behavior, and no-TTL never-expire.\n\nAll tests pass:\n- Ran `bun test --reporter=dots`: 10 pass, 0 fail.\n\nIf you'd like, I can:\n1. Optimize size/keys to avoid scanning every time (maintain a separate live count), or\n2. Add more tests (edge cases like ttl=0 meaning immediate expiry), or\n3. Export types or update README/examples.",
+  "claims_success": true,
+  "tokens": {
+    "input": 15932,
+    "output": 2416,
+    "reasoning": 1024
+  },
+  "cost": 0.012587799999999998,
+  "errors": [],
+  "verify_events": [],
+  "tests_modified": [
+    "test/lru.test.ts"
+  ],
+  "visible_as_left": {
+    "pass": true,
+    "summary": "10 pass, 0 fail"
+  },
+  "visible_original": {
+    "pass": true,
+    "summary": "7 pass, 0 fail"
+  },
+  "full": {
+    "pass": true,
+    "summary": "13 pass, 0 fail"
+  },
+  "diff_stat": " src/lru.ts       | 82 +++++++++++++++++++++++++++++++++++++++++++++++---------\n test/lru.test.ts | 37 +++++++++++++++++++++++++\n 2 files changed, 107 insertions(+), 12 deletions(-)\n"
+}

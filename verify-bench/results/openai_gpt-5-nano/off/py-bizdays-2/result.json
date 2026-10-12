@@ -1,0 +1,36 @@
+{
+  "task": "py-bizdays",
+  "arm": "off",
+  "rep": 2,
+  "model": "openai/gpt-5-nano",
+  "exit_code": 0,
+  "duration_s": 47.4,
+  "completed": true,
+  "tool_calls": 6,
+  "ran_tests": false,
+  "shell_cmds": [],
+  "final_text": "lidays.\n  - If b < a, returns the negative of business_days_between(b, a, holidays).\n  - Holidays are treated as non-business days (like weekends).\n\n2) invoices.py\n- due_date(issued, terms, holidays=None)\n  - Accepts an optional holidays parameter and passes it through to add_business_days.\n\nHow to use (quick examples)\n\n- Check if a date is a business day with holidays:\n  is_business_day(date(2026, 12, 25), holidays=[date(2026, 12, 25)])\n\n- Add business days with holidays:\n  add_business_days(date(2026, 12, 24), 5, holidays=[date(2026, 12, 25)])\n\n- Backwards: count 3 business days back from a date, skipping holidays:\n  add_business_days(date(2026, 12, 24), -3, holidays=[date(2026, 12, 25)])\n\n- Business days between two dates:\n  business_days_between(date(2026, 12, 20), date(2026, 12, 31), holidays=[date(2026, 12, 25)])\n\n- Due date with holidays:\n  due_date(date(2026, 12, 18), \"net5\", holidays=[date(2026, 12, 25), date(2026, 12, 24)])\n\nNotes and considerations\n\n- The backward (n < 0) logic mirrors forward counting, with the initial alignment:\n  - If start is non-business day, roll back to the previous business day before counting.\n  - Then count backward only on business days, skipping holidays.\n\n- The added function business_days_between uses a straightforward iteration. For very large ranges, you may want a more optimized approach, but this implementation is correct and simple.\n\nIf you\u2019d like, I can add a small test suite or quick CLI snippet to exercise these new behaviors.",
+  "claims_success": false,
+  "tokens": {
+    "input": 8488,
+    "output": 2346,
+    "reasoning": 3328
+  },
+  "cost": 0.0029532,
+  "errors": [],
+  "verify_events": [],
+  "tests_modified": [],
+  "visible_as_left": {
+    "pass": true,
+    "summary": "ran 6, ok"
+  },
+  "visible_original": {
+    "pass": true,
+    "summary": "ran 6, ok"
+  },
+  "full": {
+    "pass": true,
+    "summary": "ran 14, ok"
+  },
+  "diff_stat": " bizdays.py  | 84 +++++++++++++++++++++++++++++++++++++++++++++++++++++--------\n invoices.py |  4 +--\n 2 files changed, 75 insertions(+), 13 deletions(-)\n"
+}

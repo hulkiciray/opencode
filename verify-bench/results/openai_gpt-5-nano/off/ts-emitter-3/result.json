@@ -1,0 +1,38 @@
+{
+  "task": "ts-emitter",
+  "arm": "off",
+  "rep": 3,
+  "model": "openai/gpt-5-nano",
+  "exit_code": 0,
+  "duration_s": 63.3,
+  "completed": true,
+  "tool_calls": 6,
+  "ran_tests": false,
+  "shell_cmds": [],
+  "final_text": " that map, it also removes the corresponding wrapper from the live listener list and cleans up the mapping.\n\n- emit(event, ...args)\n  - Takes a snapshot of listeners at the start: const snapshot = list.slice().\n  - Iterates over the snapshot, but only calls those still present in the current live list: if (!currentList.includes(fn)) continue.\n  - If any listener throws, aggregates errors and rethrows after all listeners have been attempted (same behavior as before).\n\nUsage examples\n\n- Register a one-time listener:\n  - const unsubscribe = emitter.once('data', (payload) => { /* handle payload once */ })\n  - unsubscribe() to manually unsubscribe the wrapper before it fires (if needed)\n\n- Remove a not-yet-fired once listener by original function:\n  - emitter.once('data', handler)\n  - emitter.off('data', handler)\n\nTests to verify behavior (already added)\n\n- once listener runs at most once\n- off can remove a yet-unfired once listener by original function\n\nNotes\n\n- The behavior change ensures stability when listeners are removed during an emit, and that listeners added during an emit don\u2019t run until the next emit.\n- The once wrapper is kept per-event, so multiple distinct original functions can each have their own wrappers and unsubscribe correctly.\n\nIf you want, I can run through additional edge-case tests (e.g., multiple once listeners for the same event, interleaving on/once, or removing a mix of on and once listeners mid-emit) or adjust tests to fit your preferred testing style.",
+  "claims_success": false,
+  "tokens": {
+    "input": 3943,
+    "output": 2957,
+    "reasoning": 4096
+  },
+  "cost": 0.00325451,
+  "errors": [],
+  "verify_events": [],
+  "tests_modified": [
+    "test/emitter.test.ts"
+  ],
+  "visible_as_left": {
+    "pass": true,
+    "summary": "8 pass, 0 fail"
+  },
+  "visible_original": {
+    "pass": true,
+    "summary": "6 pass, 0 fail"
+  },
+  "full": {
+    "pass": true,
+    "summary": "14 pass, 0 fail"
+  },
+  "diff_stat": " src/emitter.ts       | 48 +++++++++++++++++++++++++++++++++++++++++++++---\n test/emitter.test.ts | 23 +++++++++++++++++++++++\n 2 files changed, 68 insertions(+), 3 deletions(-)\n"
+}

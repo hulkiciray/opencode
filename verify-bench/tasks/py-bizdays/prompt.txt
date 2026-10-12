@@ -1,0 +1,5 @@
+Finance wants holidays respected in due dates. In bizdays.py:
+1. add_business_days and is_business_day should accept an optional `holidays` collection of dates; holidays are skipped exactly like weekends.
+2. add_business_days should support negative n: count backwards, skipping weekends and holidays. For n < 0 starting on a non-business day, first roll back to the previous business day (mirroring how n >= 0 rolls forward).
+3. Add business_days_between(a, b, holidays=()) that returns the number of business days in [a, b) — negative if b < a (i.e. -business_days_between(b, a)).
+Also let invoices.due_date take an optional holidays argument and pass it through.

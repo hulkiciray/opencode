@@ -1,0 +1,6 @@
+Add exponential backoff with jitter to the retry decorator:
+- `backoff` multiplier (default 1, i.e. today's constant delay): the wait before attempt k+1 is delay * backoff**(k-1).
+- `max_delay` (default None): cap on the computed wait, applied before jitter.
+- `jitter` fraction between 0 and 1 (default 0): the wait is multiplied by a random factor in [1 - jitter, 1 + jitter]. Take an injectable `rng` (callable returning a float in [0, 1), default random.random) so it's testable: factor = 1 - jitter + 2 * jitter * rng().
+- `on_retry(attempt, exc, wait)` optional callback, called before each sleep with the 1-based attempt number that just failed.
+Validate arguments: backoff must be >= 1, jitter in [0, 1], max_delay > 0 if given (raise ValueError).

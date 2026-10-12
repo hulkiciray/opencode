@@ -1,0 +1,6 @@
+We oversell because stock is only checked when an order is fulfilled. Change it so that:
+- creating an order reserves the stock. If any line can't be reserved, raise InsufficientStock and nothing is created or reserved.
+- cancelling a pending order releases its reservation.
+- fulfilling turns the reservation into an actual deduction of on-hand stock.
+- Inventory.available(sku) means on-hand minus reserved.
+The reports (low_stock, stock_value) must keep using on-hand quantities, not available.

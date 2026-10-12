@@ -1,0 +1,5 @@
+{
+  "name": "lru",
+  "type": "module",
+  "scripts": { "test": "bun test" }
+}

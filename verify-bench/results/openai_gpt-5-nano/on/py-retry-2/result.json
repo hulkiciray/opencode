@@ -1,0 +1,50 @@
+{
+  "task": "py-retry",
+  "arm": "on",
+  "rep": 2,
+  "model": "openai/gpt-5-nano",
+  "exit_code": 0,
+  "duration_s": 43.8,
+  "completed": true,
+  "tool_calls": 5,
+  "ran_tests": false,
+  "shell_cmds": [],
+  "final_text": " be > 0\n\n- Compatibility\n  - Default behavior remains backward compatible:\n    - Default backoff = 1.0 (no exponential growth)\n    - Default max_delay = None (no cap)\n    - Default jitter = 0.0 (no jitter)\n    - Default rng is random.random (testable via injection)\n\nFiles touched\n\n- retry.py\n  - Added required imports (import random)\n  - Replaced the old signature with the enhanced one\n  - Implemented the new wait calculation with cap and jitter\n  - Added on_retry callback support\n  - Added argument validation\n\nUsage examples\n\n- Basic usage (unchanged behavior):\n  - @retry(3)(my_func)()\n  - Keeps existing behavior with delay = 0.0 (no sleep by default)\n\n- Exponential backoff with jitter and max delay:\n  - @retry(\n      times=5,\n      delay=0.5,\n      backoff=2.0,\n      max_delay=5.0,\n      jitter=0.25\n    )\n    def my_func(...):\n      ...\n\n- Injectable RNG for tests:\n  - def my_rng():\n      return 0.5  # deterministic value between 0 and 1\n    @retry(4, delay=0.5, rng=my_rng)\n    ...\n\n- on_retry callback:\n  - def on_retry(attempt, exc, wait):\n      print(f\"Retry {attempt} after {wait:.3f}s due to {exc}\")\n    @retry(3, on_retry=on_retry)\n\nNotes\n\n- Existing tests in tests/test_retry.py should continue to pass with the existing defaults.\n- The added validations will raise ValueError for invalid configurations (e.g., backoff < 1, jitter outside [0, 1], max_delay <= 0).\n\nIf you want, I can add new tests to cover the exponential backoff with jitter and on_retry behavior explicitly.",
+  "claims_success": false,
+  "tokens": {
+    "input": 26362,
+    "output": 2192,
+    "reasoning": 3008
+  },
+  "cost": 0.00346402,
+  "errors": [],
+  "verify_events": [
+    {
+      "status": "passed",
+      "attempt": 0,
+      "checks": [
+        {
+          "command": "python3 -m unittest",
+          "ok": true,
+          "code": 0,
+          "duration": 28
+        }
+      ],
+      "weakening": []
+    }
+  ],
+  "tests_modified": [],
+  "visible_as_left": {
+    "pass": true,
+    "summary": "ran 7, ok"
+  },
+  "visible_original": {
+    "pass": true,
+    "summary": "ran 7, ok"
+  },
+  "full": {
+    "pass": true,
+    "summary": "ran 15, ok"
+  },
+  "diff_stat": " retry.py | 66 +++++++++++++++++++++++++++++++++++++++++++++++++++++++++-------\n 1 file changed, 59 insertions(+), 7 deletions(-)\n"
+}

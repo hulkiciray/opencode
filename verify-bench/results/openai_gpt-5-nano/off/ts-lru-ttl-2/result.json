@@ -1,0 +1,38 @@
+{
+  "task": "ts-lru-ttl",
+  "arm": "off",
+  "rep": 2,
+  "model": "openai/gpt-5-nano",
+  "exit_code": 0,
+  "duration_s": 62.3,
+  "completed": true,
+  "tool_calls": 9,
+  "ran_tests": false,
+  "shell_cmds": [],
+  "final_text": "ty, { ttl: 1000 }) // default TTL per entry in ms\n  - new LRUCache(capacity, { ttl: 1000, now: () => someControlledTime }) // testable time\n\n- Per-entry TTL override:\n  - cache.set(key, value, ttlMs) // overrides TTL for this entry\n\n- Time control for tests:\n  - Provide a now function via options: now: () => number\n\nExample\n\n- Basic TTL with per-entry override:\n  - const c = new LRUCache<string, number>(2, { ttl: 1000, now: () => Date.now() })\n  - c.set(\"a\", 1) // expires in 1000ms\n  - c.set(\"b\", 2, 100) // b expires in 100ms from now\n  - c.get(\"a\") // returns 1 if not expired, otherwise undefined\n  - c.has(\"b\") // true if not expired, false if expired\n  - c.keys() // excludes expired entries\n\nFiles touched\n\n- Updated\n  - src/lru.ts: Implement TTL, now hook, eviction-prior-expiry, and size/keys behavior.\n\n- Updated\n  - test/lru.test.ts: Added TTL-related tests and adjusted tests to cover new semantics.\n\nNotes\n\n- Expired entries are removed from the cache on access (get/has) and on size/keys(), ensuring they don\u2019t count toward size or appear in keys().\n- If the cache is full, expired entries are dropped first (via pruneExpired) before performing eviction of the oldest live item.\n- Default TTL is \u201cno TTL\u201d (entries never expire) unless you pass ttl in the constructor options.\n\nIf you want me to run tests or adjust tests further (e.g., edge-case timings or additional scenarios), tell me which environment you\u2019d like to target (e.g., Bun, Jest) and I\u2019ll align the tests accordingly.",
+  "claims_success": false,
+  "tokens": {
+    "input": 26543,
+    "output": 3862,
+    "reasoning": 4352
+  },
+  "cost": 0.004882190000000001,
+  "errors": [],
+  "verify_events": [],
+  "tests_modified": [
+    "test/lru.test.ts"
+  ],
+  "visible_as_left": {
+    "pass": false,
+    "summary": "9 pass, 1 fail"
+  },
+  "visible_original": {
+    "pass": true,
+    "summary": "7 pass, 0 fail"
+  },
+  "full": {
+    "pass": true,
+    "summary": "13 pass, 0 fail"
+  },
+  "diff_stat": " src/lru.ts       | 87 +++++++++++++++++++++++++++++++++++++++++++++++++-------\n test/lru.test.ts | 45 +++++++++++++++++++++++++++++\n 2 files changed, 122 insertions(+), 10 deletions(-)\n"
+}

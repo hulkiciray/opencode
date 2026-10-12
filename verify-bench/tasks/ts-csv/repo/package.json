@@ -1,0 +1,5 @@
+{
+  "name": "csv",
+  "type": "module",
+  "scripts": { "test": "bun test" }
+}

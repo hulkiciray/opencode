@@ -1,0 +1,40 @@
+{
+  "task": "ts-emitter",
+  "arm": "off",
+  "rep": 2,
+  "model": "openai/gpt-5-mini",
+  "exit_code": 0,
+  "duration_s": 32.7,
+  "completed": true,
+  "tool_calls": 6,
+  "ran_tests": true,
+  "shell_cmds": [
+    "bun test"
+  ],
+  "final_text": "I implemented both changes and added tests.\n\nWhat I changed\n- src/emitter.ts\n  - Replaced simple Listener[] storage with Entry objects {fn, orig}.\n  - Implemented once(event, fn) which returns an unsubscribe function. once stores a wrapper function as the callable and orig points to the original fn so off(event, fn) can remove it.\n  - Made emit iterate over a snapshot of listeners present when emit started. Before calling each snapshot entry, emit checks the current live list to see if that exact entry still exists; if removed before its turn it is skipped. This fixes the bug where removals during emit could cause the next listener to be skipped. Listeners added during an emit don't run until the next emit.\n  - off(event, fn) removes the first entry whose orig === fn (so it removes once-wrappers by original fn as requested).\n\n- test/emitter.test.ts\n  - Added tests for once behavior and for removal/self-unsubscribe during emit to verify the bug is fixed.\n\nResults\n- Ran the test suite: all tests pass (8 passed, 0 failed).\n\nIf you want, I can:\n1. Add TypeScript types/exports for Entry if you prefer stricter typing.\n2. Make off remove all registrations matching the function (instead of just the first) \u2014 currently it mirrors your previous behavior of removing a single registration.",
+  "claims_success": true,
+  "tokens": {
+    "input": 7252,
+    "output": 2266,
+    "reasoning": 1536
+  },
+  "cost": 0.0106842,
+  "errors": [],
+  "verify_events": [],
+  "tests_modified": [
+    "test/emitter.test.ts"
+  ],
+  "visible_as_left": {
+    "pass": true,
+    "summary": "8 pass, 0 fail"
+  },
+  "visible_original": {
+    "pass": true,
+    "summary": "6 pass, 0 fail"
+  },
+  "full": {
+    "pass": true,
+    "summary": "14 pass, 0 fail"
+  },
+  "diff_stat": " src/emitter.ts       | 44 ++++++++++++++++++++++++++++++++++++++------\n test/emitter.test.ts | 47 +++++++++++++++++++++++++++++++++++++++++++++++\n 2 files changed, 85 insertions(+), 6 deletions(-)\n"
+}

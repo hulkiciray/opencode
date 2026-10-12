@@ -1,0 +1,40 @@
+{
+  "task": "ts-lru-ttl",
+  "arm": "off",
+  "rep": 1,
+  "model": "openai/gpt-5-mini",
+  "exit_code": 0,
+  "duration_s": 34.2,
+  "completed": true,
+  "tool_calls": 8,
+  "ran_tests": true,
+  "shell_cmds": [
+    "ls -la",
+    "npm test --silent",
+    "bun test"
+  ],
+  "final_text": "Done. I updated src/lru.ts to add optional TTL support and a testable now() hook:\n\nSummary of changes\n- Constructor now accepts an options object: new LRUCache(capacity, { ttl?: number, now?: () => number }).\n  - ttl (ms) is the default TTL for entries; if omitted, entries never expire.\n  - now defaults to Date.now and is used to compute expiry timestamps (helps testing).\n- set(key, value, ttlMs?) accepts an optional per-entry ttlMs which overrides the default TTL for that entry. If no TTL is provided for an entry (neither per-entry nor default), the entry never expires.\n- Expired entries behave as if they were never present:\n  - get returns undefined and has returns false for expired entries.\n  - size and keys() exclude expired entries.\n  - delete returns false for expired entries (as if they weren't present).\n- When inserting into a full cache, expired entries are removed first; if still full, the oldest live entry is evicted.\n- get refreshes recency for live entries; has does not.\n\nI ran the existing tests; they all pass (7 passed). If you want, I can add unit tests covering TTL behavior and the now() hook.",
+  "claims_success": false,
+  "tokens": {
+    "input": 15065,
+    "output": 1953,
+    "reasoning": 1088
+  },
+  "cost": 0.011310649999999998,
+  "errors": [],
+  "verify_events": [],
+  "tests_modified": [],
+  "visible_as_left": {
+    "pass": true,
+    "summary": "7 pass, 0 fail"
+  },
+  "visible_original": {
+    "pass": true,
+    "summary": "7 pass, 0 fail"
+  },
+  "full": {
+    "pass": true,
+    "summary": "13 pass, 0 fail"
+  },
+  "diff_stat": " src/lru.ts | 83 ++++++++++++++++++++++++++++++++++++++++++++++++++++++--------\n 1 file changed, 73 insertions(+), 10 deletions(-)\n"
+}
