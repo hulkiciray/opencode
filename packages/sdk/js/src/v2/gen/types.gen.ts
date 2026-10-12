@@ -2028,6 +2028,16 @@ export type Config = {
     primary_tools?: Array<string>
     continue_loop_on_deny?: boolean
     mcp_timeout?: number
+    /**
+     * Verify the agent's work before it finishes: run the project's checks, flag weakened tests, and send failures back to the agent
+     */
+    verify?:
+      | boolean
+      | {
+          commands?: Array<string>
+          max_attempts?: number
+          timeout?: number
+        }
     policies?: Array<ConfigV2ExperimentalPolicy>
   }
 }
